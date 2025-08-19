@@ -18,4 +18,13 @@ inline void test_display() {
     delay(2000);
 }
 
+inline void test_setup_wifi() {
+    setup_wifi();
+}
+
+inline void test_broadcast() {
+    broadcast("t=th,t=45.45,h=35.35");
+    broadcast("t=m,m=65");
+}
+
 #endif

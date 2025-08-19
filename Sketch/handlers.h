@@ -13,8 +13,13 @@
 #define DISPLAY_HEIGHT 64
 #define DISPLAY_I2C_ADDRESS 0x3C
 #define DISPLAY_RESET_PIN -1
+#define BROADCAST_TIME 2000
+
+static const char wifi_ssid[] PROGMEM = "DPMS JR";
+static const char wifi_pass[] PROGMEM = "dpms1234";
 
 Adafruit_SSD1306 display(DISPLAY_WIDTH, DISPLAY_HEIGHT, &Wire, DISPLAY_RESET_PIN);
+WiFiEspServer wifi_server(80);
 
 inline void setup_display() {
     if (!display.begin(SSD1306_SWITCHCAPVCC, DISPLAY_I2C_ADDRESS)) {
@@ -87,6 +92,49 @@ inline void display_moisture(uint8_t moisture) {
     display.setTextSize(2);
     display.print("%");
     display.display();
+}
+
+inline void setup_wifi() {
+    WiFi.init(&Serial);
+    if (WiFi.status() == WL_NO_SHIELD) {
+        for (;;);
+    }
+
+    IPAddress wifi_ip(192, 168, 1, 1);
+    WiFi.configAP(wifi_ip);
+    WiFi.beginAP(wifi_ssid, 11, wifi_pass, ENC_TYPE_WPA_WPA2_PSK);
+    disply_ipaddress(WiFi.localIP());
+    wifi_server.begin();
+}
+
+void broadcast(String content) {
+    RingBuffer buffer(8);
+    WiFiEspClient client;
+    unsigned long starting_time = millis();
+
+    while (millis() - starting_time < BROADCAST_TIME) {
+        client = wifi_server.available();
+        if (client) {
+            buffer.init();
+            while (client.connected()) {
+                if (client.available()) {
+                    char c = client.read();
+                    buffer.push(c);
+                    if (buffer.endsWith("\r\n\r\n")) {
+                        client.print(
+                            "HTTP/1.1 200 OK\r\n"
+                            "Content-Type: text/plain\r\n"
+                            "Connection: close\r\n\r\n"
+                        );
+                        client.print(content);
+                        break;
+                    }
+                }
+            }
+            delay(10);
+            client.stop();
+        }
+    }
 }
 
 #endif
