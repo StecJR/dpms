@@ -7,6 +7,7 @@
 #include <Fonts/FreeSans12pt7b.h>
 #include <Fonts/FreeSans18pt7b.h>
 #include <WiFiEsp.h>
+#include <DHT.h>
 #include "bitmaps.h"
 
 #define DISPLAY_WIDTH 128
@@ -14,12 +15,18 @@
 #define DISPLAY_I2C_ADDRESS 0x3C
 #define DISPLAY_RESET_PIN -1
 #define BROADCAST_TIME 2000
+#define DHT_PIN 2
+#define DHT_TYPE DHT11
+#define MOISTURE_PIN A0
+#define MOISTURE_WET_LEVEL 300
+#define MOISTURE_DRY_LEVEL 700
 
 static const char wifi_ssid[] PROGMEM = "DPMS JR";
 static const char wifi_pass[] PROGMEM = "dpms1234";
 
 Adafruit_SSD1306 display(DISPLAY_WIDTH, DISPLAY_HEIGHT, &Wire, DISPLAY_RESET_PIN);
 WiFiEspServer wifi_server(80);
+DHT dht(DHT_PIN, DHT_TYPE);
 
 inline void setup_display() {
     if (!display.begin(SSD1306_SWITCHCAPVCC, DISPLAY_I2C_ADDRESS)) {
@@ -135,6 +142,32 @@ void broadcast(String content) {
             client.stop();
         }
     }
+}
+
+inline void setup_sensors() {
+    dht.begin();
+}
+
+void handle_temp_humid() {
+    float temp = dht.readTemperature();
+    float humid = dht.readHumidity();
+    if (isnan(temp) || isnan(humid)) {
+        return;
+    }
+
+    display_temp_humid(temp, humid);
+    broadcast("t=th,t=" + String(temp) + ",h=" + String(humid));
+}
+
+void handle_moisture() {
+    uint8_t moisture = constrain(
+        map(analogRead(MOISTURE_PIN), MOISTURE_DRY_LEVEL, MOISTURE_WET_LEVEL, 0, 100),
+        0,
+        100
+    );
+
+    display_moisture(moisture);
+    broadcast("t=m,m=" + String(moisture));
 }
 
 #endif
