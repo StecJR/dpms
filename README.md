@@ -1,5 +1,13 @@
 <p align="center">
-    <img src="./res/icon.svg" alt="DPMS icon" width="150" height="150"/><br>
+    <img alt="DPMS icon" width="150" height="150" src="./res/icon.svg" /><br>
+    <img alt="Arduino" src="https://img.shields.io/badge/Project-Arduino-brightgreen?style=for-the-badge&color=6fccf3&logoColor=D9E0EE&labelColor=302D41" />
+    <img alt="License" src="https://img.shields.io/github/license/StecJR/dpms?style=for-the-badge&color=8bd5ca&labelColor=302d41" />
+    <img alt="Latest release" src="https://img.shields.io/github/v/release/StecJR/dpms?style=for-the-badge&color=9abaff&logoColor=d9e0ee&labelColor=302d41&sort=semver" />
+    <img alt="Code size" src="https://img.shields.io/github/languages/code-size/StecJR/dpms?style=for-the-badge&color=f5e0dc&labelColor=302d41" />
+    <img alt="Stars" src="https://img.shields.io/github/stars/StecJR/dpms?style=for-the-badge&color=c69ff5&labelColor=302d41" />
+    <img alt="Open Issues" src="https://img.shields.io/github/issues/StecJR/dpms?style=for-the-badge&color=ee999f&labelColor=302d41" />
+    <img alt="Memory usage" src="https://img.shields.io/badge/Program%20Storage-93%25-orange?style=for-the-badge&color=ddb6f2&labelColor=302d41" />
+    <img alt="Memory usage" src="https://img.shields.io/badge/Dynamic%20Memory-38%25-orange?style=for-the-badge&color=c9cbff&labelColor=302d41" />
 </p>
 
 <h2><p align="center">DPMS</p></h2>
@@ -23,28 +31,77 @@ A digital system that tracks soil moisture, humidity, and temperature for the pu
 - ESP8266 Serial Esp-01 Wi-Fi Module.
 - ESP8266 Esp-01 Wi-Fi Module Adapter.
 ### 🔌 Wiring
-DHT11 Sensor:
-* Attach the `+` pin to the Arduino's `5v` pin.
-* Attach the `out` pin to the Arduino's `digital 2` pin.
-* Attach the `-` pin to the Arduino's `GND` pin.
+<table>
+    <tr align="center">
+        <th>Sensor</th>
+        <th>Sensor Pin</th>
+        <th>Arduino Pin</th>
+    </tr>
+    <tr align="center">
+        <td rowspan="3">DHT11</td>
+        <td><code>+</code></td>
+        <td><code>5v</code></td>
+    </tr>
+    <tr align="center">
+        <td><code>out</code></td>
+        <td><code>digital 2</code></td>
+    </tr>
+    <tr align="center">
+        <td><code>-</code></td>
+        <td><code>GND</code></td>
+    </tr>
+    <tr align="center">
+        <td rowspan="3">Soil Moisture</td>
+        <td><code>VCC</code></td>
+        <td><code>5v</code></td>
+    </tr>
+    <tr align="center">
+        <td><code>GND</code></td>
+        <td><code>GND</code></td>
+    </tr>
+    <tr align="center">
+        <td><code>A0</code></td>
+        <td><code>analog A0</code></td>
+    </tr>
+    <tr align="center">
+        <td rowspan="4">SSD1306 OLED Display</td>
+        <td><code>GND</code></td>
+        <td><code>GND</code></td>
+    </tr>
+    <tr align="center">
+        <td><code>VCC</code></td>
+        <td><code>5v</code></td>
+    </tr>
+    <tr align="center">
+        <td><code>SCL</code></td>
+        <td><code>analog A5</code></td>
+    </tr>
+    <tr align="center">
+        <td><code>SDA</code></td>
+        <td><code>analog A4</code></td>
+    </tr>
+    <tr align="center">
+        <td rowspan="5">ESP8266 Wi-Fi</td>
+        <td colspan="2">Insert the wifi module into the adapter accordingly</td>
+    </tr>
+    <tr align="center">
+        <td><code>GND</code></td>
+        <td><code>GND</code></td>
+    </tr>
+    <tr align="center">
+        <td><code>VCC</code></td>
+        <td><code>5v</code></td>
+    </tr>
+    <tr align="center">
+        <td><code>TX</code></td>
+        <td><code>digital 0 (RX)</code></td>
+    </tr>
+    <tr align="center">
+        <td><code>RX</code></td>
+        <td><code>digital 1 (TX)</code></td>
+    </tr>
+</table>
 
-Soil Moisture Sensor:
-* Attach the `VCC` pin to the Arduino's `5v` pin.
-* Attach the `GND` pin to the Arduino's `GND` pin.
-* Attach the `AO` pin to the Arduino's `analog A0` pin.
-
-SSD1306 OLED Display:
-* Attach the `GND` pin to the Arduino's `GND` pin.
-* Attach the `VCC` pin to the Arduino's `5v` pin.
-* Attach the `SCL` pin to the Arduino's `analog A5` pin.
-* Attach the `SDA` pin to the Arduino's `analog A4` pin.
-
-ESP8266 Wi-Fi:
-* Insert the wifi module into the adapter accordingly.
-* Attach the `GND` pin to the Arduino's `GND` pin.
-* Attach the `VCC` pin to the Arduino's `5v` pin.
-* Attach the `TX` pin to the Arduino's `digital 0 (RX)` pin.
-* Attach the `RX` pin to the Arduino's `digital 1 (TX)` pin.
 ### 📦 Software Requirements
 - [Arduino IDE](https://www.arduino.cc/en/software/) (or [arduino-cli](https://github.com/arduino/arduino-cli/releases/))
 - [Android Studio](https://developer.android.com/studio/)
