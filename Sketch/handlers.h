@@ -1,15 +1,19 @@
 #ifndef HANDLERS_H
 #define HANDLERS_H
 
-#include <Wire.h>
 #include <Adafruit_SSD1306.h>
-#include <Fonts/FreeSerif9pt7b.h>
-#include <Fonts/FreeSans12pt7b.h>
-#include <Fonts/FreeSans18pt7b.h>
 #include <WiFiEsp.h>
 #include <DHT.h>
 #include "bitmaps.h"
 
+#define DEBUG_MODE 0
+#if DEBUG_MODE
+    #include <SoftwareSerial.h>
+    SoftwareSerial SWSerial(6, 7); // RX, TX
+    #define BAUD_RATE 9600
+#else
+    #define BAUD_RATE 115200
+#endif
 #define DISPLAY_WIDTH 128
 #define DISPLAY_HEIGHT 64
 #define DISPLAY_I2C_ADDRESS 0x3C
@@ -21,8 +25,8 @@
 #define MOISTURE_WET_LEVEL 300
 #define MOISTURE_DRY_LEVEL 700
 
-static const char wifi_ssid[] PROGMEM = "DPMS JR";
-static const char wifi_pass[] PROGMEM = "dpms1234";
+const char wifi_ssid[] PROGMEM = "DPMS JR";
+const char wifi_pass[] PROGMEM = "dpms1234";
 
 Adafruit_SSD1306 display(DISPLAY_WIDTH, DISPLAY_HEIGHT, &Wire, DISPLAY_RESET_PIN);
 WiFiEspServer wifi_server(80);
@@ -30,10 +34,11 @@ DHT dht(DHT_PIN, DHT_TYPE);
 
 inline void setup_display() {
     if (!display.begin(SSD1306_SWITCHCAPVCC, DISPLAY_I2C_ADDRESS)) {
-        Serial.println(F("Display setup failed"));
+#if DEBUG_MODE
+        Serial.println(F("SSD1306 allocation failed"));
+#endif
         for (;;);
     }
-    display.setTextWrap(false);
     display.setTextColor(WHITE);
 }
 
@@ -44,66 +49,61 @@ inline void display_banner() {
 }
 
 inline void disply_ipaddress(IPAddress addr) {
-    display.setTextSize(1);
     display.setCursor(50, 56);
     display.setTextColor(WHITE, BLACK);
     display.print(addr);
     display.display();
 }
 
-inline void display_temp_humid(float temp, float humid) {
-    char buf[8];
-
+void display_temp_humid(const char *temp, const char *humid) {
     display.clearDisplay();
     display.setTextSize(1);
-    display.drawBitmap(6, 4, bitmap_temp, 24, 24, WHITE);
+    display.drawBitmap(8, 4, bitmap_temp, 24, 24, WHITE);
     display.setCursor(40, 0);
-    display.print(F("Temperature :"));
-    dtostrf(temp, 0, 1, buf);
-    display.setCursor(40, 20);
-    display.setFont(&FreeSans12pt7b);
-    display.print(buf);
-    display.setFont();
-    display.setCursor(92, 12);
-    display.setTextSize(2);
+    display.print(F("Temperature:"));
+    display.setCursor(92, 18);
     display.print((char)247);
     display.print(F("C"));
-
-    display.drawBitmap(8, 36, bitmap_humid, 24, 24, WHITE);
-    display.setTextSize(1);
-    display.setCursor(40, 32);
-    display.print(F("Humidity :"));
-    dtostrf(humid, 0, 1, buf);
-    display.setCursor(40, 52);
-    display.setFont(&FreeSans12pt7b);
-    display.print(buf);
-    display.setFont();
-    display.setCursor(92, 44);
     display.setTextSize(2);
+    display.setCursor(40, 11);
+    display.print(temp);
+
+    display.setTextSize(1);
+    display.drawBitmap(10, 36, bitmap_humid, 24, 24, WHITE);
+    display.setCursor(40, 32);
+    display.print(F("Humidity:"));
+    display.setCursor(94, 50);
     display.print(F("%"));
+    display.setTextSize(2);
+    display.setCursor(40, 43);
+    display.print(humid);
     display.display();
 }
 
-inline void display_moisture(uint8_t moisture) {
+void display_moisture(uint8_t moisture) {
     display.clearDisplay();
-    display.setTextSize(1);
-    display.setCursor(34, 10);
-    display.setFont(&FreeSerif9pt7b);
-    display.print(F("Moisture"));
-    display.drawBitmap(14, 25, bitmap_moist, 32, 32, WHITE);
-    display.setCursor(54, 52);
-    display.setFont(&FreeSans18pt7b);
-    display.print(moisture);
-    display.setFont();
-    display.setCursor(100, 36);
     display.setTextSize(2);
+    display.drawBitmap(16, 26, bitmap_moist, 32, 32, WHITE);
+    display.setCursor(14, 7);
+    display.print(F("Moisture:"));
+    display.setCursor(98, 38);
     display.print("%");
+    display.setTextSize(3);
+    display.setCursor(56, 32);
+    display.print(moisture);
     display.display();
 }
 
 inline void setup_wifi() {
+#if DEBUG_MODE
+    WiFi.init(&SWSerial);
+#else
     WiFi.init(&Serial);
+#endif
     if (WiFi.status() == WL_NO_SHIELD) {
+#if DEBUG_MODE
+        Serial.println(F("WiFi shield not present"));
+#endif
         for (;;);
     }
 
@@ -114,7 +114,7 @@ inline void setup_wifi() {
     wifi_server.begin();
 }
 
-void broadcast(String content) {
+void broadcast(const char *content) {
     RingBuffer buffer(8);
     WiFiEspClient client;
     unsigned long starting_time = millis();
@@ -125,14 +125,9 @@ void broadcast(String content) {
             buffer.init();
             while (client.connected()) {
                 if (client.available()) {
-                    char c = client.read();
-                    buffer.push(c);
+                    buffer.push(client.read());
                     if (buffer.endsWith("\r\n\r\n")) {
-                        client.print(
-                            "HTTP/1.1 200 OK\r\n"
-                            "Content-Type: text/plain\r\n"
-                            "Connection: close\r\n\r\n"
-                        );
+                        client.print(F("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\n"));
                         client.print(content);
                         break;
                     }
@@ -148,18 +143,20 @@ inline void setup_sensors() {
     dht.begin();
 }
 
-void handle_temp_humid() {
+inline void handle_temp_humid() {
     float temp = dht.readTemperature();
     float humid = dht.readHumidity();
-    if (isnan(temp) || isnan(humid)) {
-        return;
-    }
+    if (isnan(temp) || isnan(humid)) return;
 
-    display_temp_humid(temp, humid);
-    broadcast("t=th,t=" + String(temp) + ",h=" + String(humid));
+    char temp_buff[8], humid_buff[8], content[22];
+    dtostrf(temp, 0, 1, temp_buff);
+    dtostrf(humid, 0, 1, humid_buff);
+    display_temp_humid(temp_buff, humid_buff);
+    snprintf(content, sizeof(content), "t=th,t=%s,h=%s", temp_buff, humid_buff);
+    broadcast(content);
 }
 
-void handle_moisture() {
+inline void handle_moisture() {
     uint8_t moisture = constrain(
         map(analogRead(MOISTURE_PIN), MOISTURE_DRY_LEVEL, MOISTURE_WET_LEVEL, 0, 100),
         0,
@@ -167,7 +164,9 @@ void handle_moisture() {
     );
 
     display_moisture(moisture);
-    broadcast("t=m,m=" + String(moisture));
+    char content[10];
+    snprintf(content, sizeof(content), "t=m,m=%u", (unsigned)moisture);
+    broadcast(content);
 }
 
 #endif

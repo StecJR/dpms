@@ -6,16 +6,15 @@
 inline void test_setup_display() {
     setup_display();
     display_banner();
-    delay(2000);
     disply_ipaddress(IPAddress(192, 168, 1, 10));
     delay(2000);
 }
 
 inline void test_display() {
-    display_temp_humid(30.295, 45.5);
-    delay(2000);
-    display_moisture(60);
-    delay(2000);
+    display_temp_humid("30.2", "45.5");
+    delay(BROADCAST_TIME);
+    display_moisture((uint8_t) 60);
+    delay(BROADCAST_TIME);
 }
 
 inline void test_setup_wifi() {
@@ -23,7 +22,7 @@ inline void test_setup_wifi() {
 }
 
 inline void test_broadcast() {
-    broadcast("t=th,t=45.45,h=35.35");
+    broadcast("t=th,t=45.4,h=35.3");
     broadcast("t=m,m=65");
 }
 

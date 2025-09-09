@@ -1,10 +1,11 @@
 #include "handlers.h"
 // #include "test.h"
 
-#define BAUD_RATE 115200
-
 void setup() {
     Serial.begin(BAUD_RATE);
+#if DEBUG_MODE
+    SWSerial.begin(BAUD_RATE);
+#endif
     setup_display();
     display_banner();
     setup_wifi();
