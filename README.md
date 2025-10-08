@@ -117,7 +117,7 @@ A digital system that tracks soil moisture, humidity, and temperature for the pu
 > While uploading code, disconnect the Arduino's RX and TX pins.
 
 ## 📝 Changelog
-See full change log from [here](https://github.com/StecJR/dpms/blob/main/CHANGELOG.md).
+See full change log from [here](https://github.com/StecJR/dpms/blob/esp01/CHANGELOG.md).
 
 ## 📜 License
-This repo is licensed under the [BSD 0-Clause](https://github.com/StecJR/dpms/blob/main/LICENSE) © 2025 · [Jakir Hossain](https://github.com/StecJR)
+This repo is licensed under the [BSD 0-Clause](https://github.com/StecJR/dpms/blob/esp01/LICENSE) © 2025 · [Jakir Hossain](https://github.com/StecJR)
