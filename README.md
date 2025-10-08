@@ -22,6 +22,9 @@ A digital system that tracks soil moisture, humidity, and temperature for the pu
 - Modular Codebase: For clarity and maintainability, the codebase is modular and divided into bitmaps.h, handlers.h, and Sketch.ino.
 - Efficient Communication: Lightweight and quick data transfer is achieved by using TCP protocol and plain text.
 
+> [!NOTE]
+> Same project is also Implemented using HC-05 bluetooth module. For that, checkout [here](https://github.com/StecJR/dpms/tree/hc05).
+
 ## ⚙️ Setup
 ### 💻 Hardware Requirements
 - Arduino Uno R3.
