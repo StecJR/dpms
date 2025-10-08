@@ -6,7 +6,7 @@
 inline void test_setup_display() {
     setup_display();
     display_banner();
-    disply_ipaddress(IPAddress(192, 168, 1, 10));
+    display_ipaddress(IPAddress(192, 168, 5, 1));
     delay(2000);
 }
 

@@ -2,17 +2,16 @@
 #define HANDLERS_H
 
 #include <Adafruit_SSD1306.h>
+#include <Wire.h>
 #include <WiFiEsp.h>
 #include <DHT.h>
 #include "bitmaps.h"
 
 #define DEBUG_MODE 0
+#define BAUD_RATE 115200
 #if DEBUG_MODE
     #include <SoftwareSerial.h>
     SoftwareSerial SWSerial(6, 7); // RX, TX
-    #define BAUD_RATE 9600
-#else
-    #define BAUD_RATE 115200
 #endif
 #define DISPLAY_WIDTH 128
 #define DISPLAY_HEIGHT 64
@@ -25,10 +24,11 @@
 #define MOISTURE_WET_LEVEL 300
 #define MOISTURE_DRY_LEVEL 700
 
-const char wifi_ssid[] PROGMEM = "DPMS JR";
+const char wifi_ssid[] PROGMEM = "DPMS_ESP01";
 const char wifi_pass[] PROGMEM = "dpms1234";
 
 Adafruit_SSD1306 display(DISPLAY_WIDTH, DISPLAY_HEIGHT, &Wire, DISPLAY_RESET_PIN);
+IPAddress wifi_ip(192, 168, 5, 1);
 WiFiEspServer wifi_server(80);
 DHT dht(DHT_PIN, DHT_TYPE);
 
@@ -48,7 +48,7 @@ inline void display_banner() {
     display.display();
 }
 
-inline void disply_ipaddress(IPAddress addr) {
+inline void display_ipaddress(IPAddress addr) {
     display.setCursor(50, 56);
     display.setTextColor(WHITE, BLACK);
     display.print(addr);
@@ -107,32 +107,25 @@ inline void setup_wifi() {
         for (;;);
     }
 
-    IPAddress wifi_ip(192, 168, 1, 1);
     WiFi.configAP(wifi_ip);
     WiFi.beginAP(wifi_ssid, 11, wifi_pass, ENC_TYPE_WPA_WPA2_PSK);
-    disply_ipaddress(WiFi.localIP());
+    display_ipaddress(WiFi.localIP());
     wifi_server.begin();
 }
 
 void broadcast(const char *content) {
-    RingBuffer buffer(8);
     WiFiEspClient client;
     unsigned long starting_time = millis();
 
     while (millis() - starting_time < BROADCAST_TIME) {
         client = wifi_server.available();
         if (client) {
-            buffer.init();
-            while (client.connected()) {
-                if (client.available()) {
-                    buffer.push(client.read());
-                    if (buffer.endsWith("\r\n\r\n")) {
-                        client.print(F("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\n"));
-                        client.print(content);
-                        break;
-                    }
-                }
-            }
+            client.println(content);
+            client.flush();
+#if DEBUG_MODE
+            Serial.print("Sent: ");
+            Serial.println(content);
+#endif
             delay(10);
             client.stop();
         }

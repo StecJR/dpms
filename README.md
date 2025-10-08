@@ -6,7 +6,7 @@
     <img alt="Code size" src="https://img.shields.io/github/languages/code-size/StecJR/dpms?style=for-the-badge&color=f5e0dc&labelColor=302d41" />
     <img alt="Stars" src="https://img.shields.io/github/stars/StecJR/dpms?style=for-the-badge&color=c69ff5&labelColor=302d41" />
     <img alt="Open Issues" src="https://img.shields.io/github/issues/StecJR/dpms?style=for-the-badge&color=ee999f&labelColor=302d41" />
-    <img alt="Memory usage" src="https://img.shields.io/badge/Program%20Storage-93%25-orange?style=for-the-badge&color=ddb6f2&labelColor=302d41" />
+    <img alt="Memory usage" src="https://img.shields.io/badge/Program%20Storage-91%25-orange?style=for-the-badge&color=ddb6f2&labelColor=302d41" />
     <img alt="Memory usage" src="https://img.shields.io/badge/Dynamic%20Memory-38%25-orange?style=for-the-badge&color=c9cbff&labelColor=302d41" />
 </p>
 
@@ -20,14 +20,14 @@ A digital system that tracks soil moisture, humidity, and temperature for the pu
 - Wireless Data Transmission: The Wi-Fi module to send sensor data to an Android application.
 - Android Companion App: A modern Jetpack Compose app for Android that allows for remote viewing of environmental data.
 - Modular Codebase: For clarity and maintainability, the codebase is modular and divided into bitmaps.h, handlers.h, and Sketch.ino.
-- Efficient Communication: Lightweight and quick data transfer is achieved by using HTTP and plain text.
+- Efficient Communication: Lightweight and quick data transfer is achieved by using TCP protocol and plain text.
 
 ## ⚙️ Setup
 ### 💻 Hardware Requirements
 - Arduino Uno R3.
 - DHT11 Sensor.
 - Soil Moisture Sensor.
-- SSD1306 i2c 128x64 OLED Display.
+- SSD1306 128x64 I2C OLED Display.
 - ESP8266 Serial Esp-01 Wi-Fi Module.
 - ESP8266 Esp-01 Wi-Fi Module Adapter.
 ### 🔌 Wiring
@@ -105,8 +105,7 @@ A digital system that tracks soil moisture, humidity, and temperature for the pu
 ### 📦 Software Requirements
 - [Arduino IDE](https://www.arduino.cc/en/software/) (or [arduino-cli](https://github.com/arduino/arduino-cli/releases/))
 - [Android Studio](https://developer.android.com/studio/)
-- Arduino Libraries : [`<Adafruit_GFX.h>`](https://docs.arduino.cc/libraries/adafruit-gfx-library/#Releases), [`<Adafruit_SSD1306.h>`](https://docs.arduino.cc/libraries/adafruit-ssd1306/#Releases), [`<WiFiEsp.h>`](https://docs.arduino.cc/libraries/wifiesp/#Releases)
-- Android Libraries : [`OkHttp`](https://square.github.io/okhttp/#releases)
+- Arduino Libraries : [`<Adafruit_SSD1306.h>`](https://docs.arduino.cc/libraries/adafruit-ssd1306/#Releases), [`<WiFiEsp.h>`](https://docs.arduino.cc/libraries/wifiesp/#Releases), [`<DHT.h>`](https://docs.arduino.cc/libraries/dht11/#Releases)
 
 > [!NOTE]
 > App required INTERNET, ACCESS_NETWORK_STATE, NEARBY_WIFI_DEVICES permissions.

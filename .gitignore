@@ -2,6 +2,7 @@
 *.~
 *.iml
 .gradle
+.kotlin
 .idea
 .vscode
 /local.properties
