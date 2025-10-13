@@ -3,15 +3,14 @@
 
 #include <Adafruit_SSD1306.h>
 #include <Wire.h>
-#include <WiFiEsp.h>
 #include <DHT.h>
 #include "bitmaps.h"
 
 #define DEBUG_MODE 0
-#define BAUD_RATE 115200
+#define BAUD_RATE 9600
 #if DEBUG_MODE
-    #include <SoftwareSerial.h>
-    SoftwareSerial SWSerial(6, 7); // RX, TX
+#include <SoftwareSerial.h>
+SoftwareSerial SWSerial(6, 7); // RX, TX
 #endif
 #define DISPLAY_WIDTH 128
 #define DISPLAY_HEIGHT 64
@@ -24,12 +23,7 @@
 #define MOISTURE_WET_LEVEL 300
 #define MOISTURE_DRY_LEVEL 700
 
-const char wifi_ssid[] PROGMEM = "DPMS_ESP01";
-const char wifi_pass[] PROGMEM = "dpms1234";
-
 Adafruit_SSD1306 display(DISPLAY_WIDTH, DISPLAY_HEIGHT, &Wire, DISPLAY_RESET_PIN);
-IPAddress wifi_ip(192, 168, 5, 1);
-WiFiEspServer wifi_server(80);
 DHT dht(DHT_PIN, DHT_TYPE);
 
 inline void setup_display() {
@@ -48,13 +42,6 @@ inline void display_banner() {
     display.display();
 }
 
-inline void display_ipaddress(IPAddress addr) {
-    display.setCursor(50, 56);
-    display.setTextColor(WHITE, BLACK);
-    display.print(addr);
-    display.display();
-}
-
 void display_temp_humid(const char *temp, const char *humid) {
     display.clearDisplay();
     display.setTextSize(1);
@@ -62,7 +49,7 @@ void display_temp_humid(const char *temp, const char *humid) {
     display.setCursor(40, 0);
     display.print(F("Temperature:"));
     display.setCursor(92, 18);
-    display.print((char)247);
+    display.print((char) 247);
     display.print(F("C"));
     display.setTextSize(2);
     display.setCursor(40, 11);
@@ -94,41 +81,19 @@ void display_moisture(uint8_t moisture) {
     display.display();
 }
 
-inline void setup_wifi() {
-#if DEBUG_MODE
-    WiFi.init(&SWSerial);
-#else
-    WiFi.init(&Serial);
-#endif
-    if (WiFi.status() == WL_NO_SHIELD) {
-#if DEBUG_MODE
-        Serial.println(F("WiFi shield not present"));
-#endif
-        for (;;);
-    }
-
-    WiFi.configAP(wifi_ip);
-    WiFi.beginAP(wifi_ssid, 11, wifi_pass, ENC_TYPE_WPA_WPA2_PSK);
-    display_ipaddress(WiFi.localIP());
-    wifi_server.begin();
-}
-
 void broadcast(const char *content) {
-    WiFiEspClient client;
-    unsigned long starting_time = millis();
-
-    while (millis() - starting_time < BROADCAST_TIME) {
-        client = wifi_server.available();
-        if (client) {
-            client.println(content);
-            client.flush();
 #if DEBUG_MODE
-            Serial.print("Sent: ");
-            Serial.println(content);
+    if (SWSerial.available()) {
+        SWSerial.println(content);
+        SWSerial.flush();
+        Serial.print("Sent: ");
+        Serial.println(content);
+#else
+    if (Serial.available()) {
+        Serial.println(content);
+        Serial.flush();
 #endif
-            delay(10);
-            client.stop();
-        }
+        delay(BROADCAST_TIME);
     }
 }
 
@@ -151,14 +116,14 @@ inline void handle_temp_humid() {
 
 inline void handle_moisture() {
     uint8_t moisture = constrain(
-        map(analogRead(MOISTURE_PIN), MOISTURE_DRY_LEVEL, MOISTURE_WET_LEVEL, 0, 100),
-        0,
-        100
+            map(analogRead(MOISTURE_PIN), MOISTURE_DRY_LEVEL, MOISTURE_WET_LEVEL, 0, 100),
+            0,
+            100
     );
 
     display_moisture(moisture);
     char content[10];
-    snprintf(content, sizeof(content), "t=m,m=%u", (unsigned)moisture);
+    snprintf(content, sizeof(content), "t=m,m=%u", (unsigned) moisture);
     broadcast(content);
 }
 

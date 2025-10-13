@@ -6,7 +6,6 @@
 inline void test_setup_display() {
     setup_display();
     display_banner();
-    display_ipaddress(IPAddress(192, 168, 5, 1));
     delay(2000);
 }
 
@@ -15,10 +14,6 @@ inline void test_display() {
     delay(BROADCAST_TIME);
     display_moisture((uint8_t) 60);
     delay(BROADCAST_TIME);
-}
-
-inline void test_setup_wifi() {
-    setup_wifi();
 }
 
 inline void test_broadcast() {
