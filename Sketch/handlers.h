@@ -93,8 +93,8 @@ void broadcast(const char *content) {
         Serial.println(content);
         Serial.flush();
 #endif
-        delay(BROADCAST_TIME);
     }
+    delay(BROADCAST_TIME);
 }
 
 inline void setup_sensors() {
